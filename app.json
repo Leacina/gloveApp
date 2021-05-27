@@ -1,0 +1,12 @@
+{
+  "name": "GloveApp",
+  "displayName": "GloveApp",
+  "expo": {
+    "name": "GloveApp",
+    "slug": "GloveApp",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
