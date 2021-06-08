@@ -6,10 +6,11 @@ import Recognize from "./screens/Recognize";
 import Connection from "./screens/connection/index";
 
 const MainStack = createStackNavigator({
-  QuizIndex: {
-    screen: QuizIndex,
+  Connection: {
+    screen: Connection,
     navigationOptions: {
-      headerTitle: "GloveLibras"
+      headerTitle: "GloveLibras",
+      header: null
     }
   },
   Quiz: {
@@ -19,6 +20,17 @@ const MainStack = createStackNavigator({
       headerTintColor: "#fff",
       headerStyle: {
         backgroundColor: navigation.getParam("color"),
+        borderBottomColor: navigation.getParam("color")
+      }
+    })
+  },
+  QuizIndex: {
+    screen: QuizIndex,
+    navigationOptions: ({ navigation }) => ({
+      headerTitle: 'Luva conectada',
+      headerTintColor: "#fff",
+      headerStyle: {
+        backgroundColor: 'rgb(25, 68, 104)',
         borderBottomColor: navigation.getParam("color")
       }
     })
@@ -34,17 +46,6 @@ const MainStack = createStackNavigator({
       }
     })
   },
-  Connection: {
-    screen: Connection,
-    navigationOptions: ({ navigation }) => ({
-      headerTitle: navigation.getParam("title"),
-      headerTintColor: "#fff",
-      headerStyle: {
-        backgroundColor: navigation.getParam("color"),
-        borderBottomColor: navigation.getParam("color")
-      }
-    })
-  }
 });
 
 export default createAppContainer(MainStack);

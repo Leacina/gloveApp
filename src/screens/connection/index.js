@@ -14,14 +14,14 @@ import {
   StatusBar,
   NativeModules,
   NativeEventEmitter,
-  Button,
+  Image,
   Platform,
   PermissionsAndroid,
   FlatList,
   TouchableHighlight,
   TouchableOpacity
 } from 'react-native';
-
+import Toast from 'react-native-tiny-toast'
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 // import and setup react-native-ble-manager
@@ -37,7 +37,7 @@ import { stringToBytes } from 'convert-string';
 // this func is useful for making bytes-to-string conversion easier
 const Buffer = require('buffer/').Buffer;
 
-const Conexao = () => {
+const Conexao = ({navigation}) => {
   const [isScanning, setIsScanning] = useState(false);
   const [list, setList] = useState([]);
   const peripherals = new Map();
@@ -45,7 +45,7 @@ const Conexao = () => {
 
   // start to scan peripherals
   const startScan = () => {
-
+    //navigation.navigate('QuizIndex');
     // skip if scan process is currenly happening
     if (isScanning) {
       return;
@@ -55,7 +55,7 @@ const Conexao = () => {
     peripherals.clear();
     setList(Array.from(peripherals.values()));
 
-    // then re-scan it
+    // then re-scan i
     BleManager.scan(['4fafc201-1fb5-459e-8fcc-c5c9c331914b'], 3, true)
       .then(() => {
         console.log('Scanning...');
@@ -245,9 +245,8 @@ const Conexao = () => {
               break;
           }
         });
-
-        alert('Dispositivo conectado com sucesso!');
-
+        
+        navigation.navigate('QuizIndex');
       })
       .catch((error) => {
         console.log('Connection error', error);
@@ -315,16 +314,16 @@ const Conexao = () => {
 
   // render list of devices
   const renderItem = (item) => {
-    const color = item.connected ? 'green' : '#fff';
     return (
       <TouchableHighlight onPress={() => connectAndTestPeripheral(item)}>
-        <View style={[styles.row, {backgroundColor: color}]}>
+        <View style={[styles.row, styles.buttonBlu]}>
           <Text
             style={{
               fontSize: 12,
               textAlign: 'center',
-              color: '#333333',
+              color: '#fff',
               padding: 10,
+              fontWeight: '900'
             }}>
             {getPeripheralName(item)}
           </Text>
@@ -332,20 +331,12 @@ const Conexao = () => {
             style={{
               fontSize: 10,
               textAlign: 'center',
-              color: '#333333',
-              padding: 2,
-            }}>
-            RSSI: {item.rssi}
-          </Text>
-          <Text
-            style={{
-              fontSize: 8,
-              textAlign: 'center',
-              color: '#333333',
+              color: '#fff',
+              fontWeight: '900',
               padding: 2,
               paddingBottom: 20,
             }}>
-            {item.id}
+            Intensidade do sinal: {item.rssi}
           </Text>
         </View>
       </TouchableHighlight>
@@ -354,33 +345,39 @@ const Conexao = () => {
 
   return (
     <>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar barStyle="dark-content" backgroundColor="rgb(25, 68, 104)"/>
       <SafeAreaView style={styles.safeAreaView}>
         {/* header */}
-        <View style={styles.body}>
+        <Image
+          style={styles.logo}
+          source={require('../../assets/logo2.png')}
+        />
+        <View>
+          <View style={styles.body}>
+            {list.length === 0 && (
+              <View style={styles.noPeripherals}>
+                <Text style={styles.noPeripheralsText}>Nenhum luva para conectar</Text>
+              </View>
+            )}
+          </View>
+
+          {/* ble devices */}
+          <FlatList
+            data={list}
+            renderItem={({item}) => renderItem(item)}
+            keyExtractor={(item) => item.id}
+          />
+
           <View style={styles.scanButton}>
             <TouchableOpacity
               style={styles.buttonScan}
               title={'Buscar dispositivos'}
               onPress={() => startScan()}
             >
-              <Text style={{color:'#fff', fontWeight: 'bold', justifyContent: 'center'}}>Buscar dispositivos</Text>
+              <Text style={{color:'#fff', fontWeight: 'bold', justifyContent: 'center'}}>BUSCAR DISPOSITIVOS</Text>
             </TouchableOpacity>
           </View>
-
-          {list.length === 0 && (
-            <View style={styles.noPeripherals}>
-              <Text style={styles.noPeripheralsText}>Nenhum dispositivo para conectar</Text>
-            </View>
-          )}
-        </View>
-
-        {/* ble devices */}
-        <FlatList
-          data={list}
-          renderItem={({item}) => renderItem(item)}
-          keyExtractor={(item) => item.id}
-        />
+        </View> 
       </SafeAreaView>
     </>
   );
@@ -389,20 +386,24 @@ const Conexao = () => {
 const styles = StyleSheet.create({
   safeAreaView: {
     flex: 1,
-    backgroundColor: Colors.white,
+    flexDirection: 'column',
+    backgroundColor: 'rgb(25, 68, 104)', 
   },
   body: {
-    backgroundColor: Colors.white,
+    backgroundColor: 'rgb(25, 68, 104)',
   },
   scanButton: {
-    margin: 50,
-    marginTop: 20,
-    padding: 10
+    margin: 80,
+    padding: 5,
+    backgroundColor: 'rgb(46, 127, 80)',
+    borderRadius: 20,
   },
   buttonScan: {
     padding: 20,
     backgroundColor: '#325D79',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: 'rgb(46, 127, 80)',
+    borderRadius: 20,
   },
   noPeripherals: {
     flex: 1,
@@ -410,6 +411,8 @@ const styles = StyleSheet.create({
   },
   noPeripheralsText: {
     textAlign: 'center',
+    color: "#fff",
+    opacity: .5
   },
   footer: {
     flexDirection: 'row',
@@ -422,6 +425,19 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: 'grey',
   },
+  logo: {
+    maxWidth: 350,
+    maxHeight: 350,
+    alignSelf: "center",
+    marginBottom: 50
+  },
+  buttonBlu: {
+    backgroundColor: 'rgb(46, 127, 80)',
+    marginRight: 40,
+    marginLeft: 40,
+    opacity: .8,
+    borderRadius: 10
+  }
 });
 
 export default Conexao;

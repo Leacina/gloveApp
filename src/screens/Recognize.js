@@ -17,16 +17,18 @@ const bleEmitter = new NativeEventEmitter(BleManagerModule);
 import { stringToBytes } from 'convert-string';
 const Buffer = require('buffer/').Buffer;
 
-const RecognizeLetters = () => {
+const RecognizeLetters = ({navigation}) => {
    
     const [isScanning, setIsScanning] = useState(false);
     const [list, setList] = useState([]);
     const peripherals = new Map();
     const [testMode, setTestMode] = useState('notify');
-    const [letter, setLetter] = useState('A');
+    const [letter, setLetter] = useState('');
 
     let isSendCommand = false;
     let isConnect = false;
+
+    let recognize = "recognizeLetter";
     // start to scan peripherals
     const startScan = () => {
         // skip if scan process is currenly happening
@@ -94,9 +96,11 @@ const RecognizeLetters = () => {
             'service: ' + data.service,
             'Data: ' + value,
         );
+        setLetter(String(value[0]));
+    
 
         if(!isSendCommand){
-            const payload = 'recognizeLetter';
+            const payload = recognize;
             const payloadBytes = stringToBytes(payload);
     
             BleManager.write(data.peripheral, data.service, data.characteristic, payloadBytes)
@@ -257,7 +261,7 @@ const RecognizeLetters = () => {
     useEffect(() => {        
         // initialize BLE modules
         BleManager.start({ showAlert: false });
-
+        recognize = navigation.state.params.recognize;
         // add ble listeners on mount
         bleEmitter.addListener('BleManagerDiscoverPeripheral', handleDiscoverPeripheral);
         bleEmitter.addListener('BleManagerStopScan', handleStopScan);
@@ -283,24 +287,20 @@ const RecognizeLetters = () => {
         });
         }
         
-        const letterInterval = setInterval(() => {
-            setLetter(prevTime => prevTime == 'A' ? 'B' : 'A'); // <-- Change this line!
-        }, 3000);
-
         // remove ble listeners on unmount
         return () => {
             bleEmitter.removeListener('BleManagerDiscoverPeripheral', handleDiscoverPeripheral);
             bleEmitter.removeListener('BleManagerStopScan', handleStopScan);
             bleEmitter.removeListener('BleManagerDisconnectPeripheral', handleDisconnectedPeripheral);
             bleEmitter.removeListener('BleManagerDidUpdateValueForCharacteristic', handleUpdateValueForCharacteristic);
-            clearInterval(letterInterval);
+            //clearInterval(letterInterval);
         };
     }, []);
 
     return (
         <>
             <View style={styles.container}>
-                <StatusBar barStyle="light-content" />
+                <StatusBar barStyle="light-content" backgroundColor={navigation.getParam("color")}/>
                 <Text style={styles.letter}>{letter}</Text>
             </View>
         </>
