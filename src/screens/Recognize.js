@@ -28,7 +28,7 @@ const RecognizeLetters = ({navigation}) => {
     let isSendCommand = false;
     let isConnect = false;
 
-    let recognize = "recognizeLetter";
+    let recognize = navigation.state.params.recognize;
     // start to scan peripherals
     const startScan = () => {
         // skip if scan process is currenly happening
@@ -96,9 +96,14 @@ const RecognizeLetters = ({navigation}) => {
             'service: ' + data.service,
             'Data: ' + value,
         );
-        setLetter(String(value[0]));
-    
 
+        //Se for número e for pra reconhecer numero
+        if(!isNaN(String(value[0])) && recognize == "recognizeNumber"){
+            setLetter(String(value[0]));
+        }else if(isNaN(String(value[0])) && recognize == "recognizeLetter"){
+            setLetter(String(value[0]));
+        }
+    
         if(!isSendCommand){
             const payload = recognize;
             const payloadBytes = stringToBytes(payload);

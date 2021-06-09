@@ -37,7 +37,7 @@ const Quiz = ({navigation}) => {
 
   let recognize = "recognizeLetter";
   let numberRecognizeOffState = "";
-  let count = 0;
+  let countQuestion = 0;
 
   // handle discovered peripheral
   const handleDiscoverPeripheral = (peripheral) => {
@@ -77,39 +77,37 @@ const Quiz = ({navigation}) => {
   const handleUpdateValueForCharacteristic = (data) => {
       const buffer = Buffer.from(data.value);
       const value = buffer.toString();
-       
-      setLetter(String(value));
       
-      if(recognize === "recognizeLetter"){
-        console.log(questions[count])
-        if(String(value)[0] == 'A'){
-          answer(questions[count].answers[0].correct);
-        } 
-  
-        if(String(value)[0] == 'B'){
-          answer(questions[count].answers[1].correct);
-        } 
-  
-        if(String(value)[0] == 'C'){
-          answer(questions[count].answers[2].correct);
-        } 
-  
-        if(String(value)[0] == 'D'){
-          answer(questions[count].answers[3].correct);
-        } 
-      }else{
+      //Se for número e for pra reconhecer numero
+      if(!isNaN(String(value[0])) && recognize == "recognizeNumber"){
         setNumber(number => {
           numberRecognizeOffState = number + String(value)[0];
           return numberRecognizeOffState;
         });
         
-        if(Number(numberRecognizeOffState) == Number(questions[count].answers[0].text)){
+        if(Number(numberRecognizeOffState) == Number(questions[countQuestion].answers[0].text)){
           answer(true);
-        }else if(Number(numberRecognizeOffState) > Number(questions[count].answers[0].text)){
+        }else if(Number(numberRecognizeOffState) > Number(questions[countQuestion].answers[0].text)){
           answer(false);
         }
+      }else if(isNaN(String(value[0])) && recognize == "recognizeLetter"){
+        if(String(value)[0] == 'A'){
+          answer(questions[countQuestion].answers[0].correct);
+        } 
+  
+        if(String(value)[0] == 'B'){
+          answer(questions[countQuestion].answers[1].correct);
+        } 
+  
+        if(String(value)[0] == 'C'){
+          answer(questions[countQuestion].answers[2].correct);
+        } 
+  
+        if(String(value)[0] == 'D'){
+          answer(questions[countQuestion].answers[3].correct);
+        } 
       }
-
+      
       if(!isSendCommand){
       
           const payload = recognize;
@@ -323,7 +321,7 @@ const Quiz = ({navigation}) => {
     
     if(correct){
       setCorrectCount(count => count + 1);
-      count += 1;
+      countQuestion += 1;
       setAnswerCorrect(true);
       setcontrolNextQuestions(true);
     }else{
@@ -341,22 +339,10 @@ const Quiz = ({navigation}) => {
     if (nextIndex >= totalCount) {
       return navigation.navigate('QuizIndex');
     }
-
+    console.log("teste")
     setActiveQuestionIndex(nextIndex);
     setAnswered(false); 
     setcontrolNextQuestions(false);
-    // this.setState(state => {
-    //   const nextIndex = state.activeQuestionIndex + 1;
-
-    //   if (nextIndex >= state.totalCount) {
-    //     return this.props.navigation.popToTop();
-    //   }
-
-    //   return {
-    //     activeQuestionIndex: nextIndex,
-    //     answered: false
-    //   };
-    // });
   };
   
   const questions =  navigation.state.params.questions;
